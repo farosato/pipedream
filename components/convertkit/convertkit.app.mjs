@@ -9,9 +9,7 @@ export default {
       type: "string",
       label: "Subscriber",
       description: "Select a subscriber",
-      async options({
-        page, returnField,
-      }) {
+      async options({ page, returnField }) {
         const response = await this.listSubscribers({
           page: page + 1,
         });
@@ -51,9 +49,7 @@ export default {
     _apiSecretToken() {
       return this.$auth.api_secret;
     },
-    async createWebhook({
-      target_url, event,
-    }) {
+    async createWebhook({ target_url, event }) {
       const options = {
         method: "post",
         data: {
@@ -85,18 +81,14 @@ export default {
         ...options,
       });
     },
-    async *paginate({
-      $, fn, payload,
-    }, dataField = null) {
+    async *paginate({ $, fn, payload }, dataField = null) {
       do {
         const response = await fn({
           $,
           ...payload,
         });
 
-        for (const d of (dataField
-          ? response[dataField]
-          : response)) {
+        for (const d of dataField ? response[dataField] : response) {
           yield d;
         }
         if (response.total_pages > response.page) {
@@ -106,39 +98,55 @@ export default {
         break;
       } while (true);
     },
-    async listSubscribers({
-      $, ...params
-    }) {
-      return await this._makeRequest("subscribers", {
-        method: "get",
-        params,
-      }, $);
+    async listSubscribers({ $, ...params }) {
+      return await this._makeRequest(
+        "subscribers",
+        {
+          method: "get",
+          params,
+        },
+        $
+      );
     },
     async getSubscriber(subscriberId, $) {
-      return await this._makeRequest(`subscribers/${subscriberId}`, {
-        method: "get",
-      }, $);
+      return await this._makeRequest(
+        `subscribers/${subscriberId}`,
+        {
+          method: "get",
+        },
+        $
+      );
     },
     async listForms() {
       return await this._makeRequest("forms", {
         method: "get",
       });
     },
-    async addSubscriberToForm(email, formId, $) {
-      return await this._makeRequest(`forms/${formId}/subscribe`, {
-        method: "post",
-        data: {
-          email,
+    async addSubscriberToForm(email, formId, $, firstName, customFields) {
+      return await this._makeRequest(
+        `forms/${formId}/subscribe`,
+        {
+          method: "post",
+          data: {
+            email,
+            first_name: firstName,
+            fields: customFields,
+          },
         },
-      }, $);
+        $
+      );
     },
     async addTagToSubscriber(email, tagId, $) {
-      return await this._makeRequest(`tags/${tagId}/subscribe`, {
-        method: "post",
-        data: {
-          email,
+      return await this._makeRequest(
+        `tags/${tagId}/subscribe`,
+        {
+          method: "post",
+          data: {
+            email,
+          },
         },
-      }, $);
+        $
+      );
     },
     async listCourses() {
       return this._makeRequest("sequences", {
